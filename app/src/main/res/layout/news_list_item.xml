@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/narrow_padding"
+    android:paddingEnd="@dimen/wide_padding"
+    android:paddingLeft="@dimen/wide_padding"
+    android:paddingRight="@dimen/wide_padding"
+    android:paddingStart="@dimen/wide_padding">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textSize="@dimen/big_text"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        tools:text="article title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/narrow_padding"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="@dimen/zero_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/normal_text"
+            tools:text="article author" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="@dimen/zero_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/normal_text"
+            tools:text="article date" />
+
+        <TextView
+            android:id="@+id/section"
+            android:layout_width="@dimen/zero_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/normal_text"
+            tools:text="article section" />
+    </LinearLayout>
+
+</LinearLayout>
