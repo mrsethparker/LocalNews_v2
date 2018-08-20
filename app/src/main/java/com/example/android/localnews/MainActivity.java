@@ -9,6 +9,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-
     //no loader exists so create a new one
     @Override
     public Loader<List<NewsArticle>> onCreateLoader(int i, Bundle bundle) {
@@ -112,5 +113,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<NewsArticle>> loader) {
         mAdapter.clear();
+    }
+
+    @Override
+    //initialize the contents of our activity's options menu.
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //inflate our options menu
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    //check the id of the selected menu item and start the appropriate activity
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
