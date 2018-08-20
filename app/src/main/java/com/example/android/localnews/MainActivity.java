@@ -4,10 +4,12 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +24,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsArticle>>{
 
     //our news article request URL
-    private static final String REQUEST_URL = "https://content.guardianapis.com/search?q=nevada&api-key=3f026c3c-4ea9-47ed-9e64-ae815f555a4f&show-tags=contributor&page-size=50";
+    private static final String REQUEST_URL = "https://content.guardianapis.com/search";
 
     //our news article adapter
     private NewsArticleAdapter mAdapter;
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
                 Uri newsarticleUri = Uri.parse(currentNewsArticle.getUrl());
 
-                // Create a new intent to view the earthqua ke URI
+                // Create a new intent to view the news article URI
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsarticleUri);
 
                 // Send the intent to launch a new activity
@@ -86,7 +88,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     //no loader exists so create a new one
     @Override
     public Loader<List<NewsArticle>> onCreateLoader(int i, Bundle bundle) {
-        return new NewsArticleLoader(MainActivity.this, REQUEST_URL);
+
+        //get the default preferences
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String searchTerm = sharedPrefs.getString(
+                getString(R.string.settings_search_term_key),
+                getString(R.string.settings_search_term_default));
+
+        //parse our base URI string
+        Uri baseUri = Uri.parse(REQUEST_URL);
+
+        //prepare our baseURI so that we can add parameters
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+
+        //append our query parameters to our baseURI
+        uriBuilder.appendQueryParameter("q", searchTerm);
+        uriBuilder.appendQueryParameter("api-key", "3f026c3c-4ea9-47ed-9e64-ae815f555a4f");
+        uriBuilder.appendQueryParameter("show-tags", "contributor");
+        uriBuilder.appendQueryParameter("page-size", "50");
+
+        return new NewsArticleLoader(MainActivity.this, uriBuilder.toString());
     }
 
     //loader has finished fetching content so go ahead and update the UI with the news articles
