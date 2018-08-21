@@ -21,22 +21,31 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsArticle>>{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsArticle>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     //our news article request URL
     private static final String REQUEST_URL = "https://content.guardianapis.com/search";
 
+    //the ID of our loader
+    private static final int LOADER_ID = 1;
+
     //our news article adapter
     private NewsArticleAdapter mAdapter;
+
+    //TextView to display if our list is empty
+    private TextView emptyStateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        emptyStateTextView = (TextView) findViewById(R.id.empty_list);
+
         // Find a reference to the ListView in the layout
         ListView newsArticleListView = (ListView) findViewById(R.id.list);
-        newsArticleListView.setEmptyView((TextView) findViewById(R.id.empty_list));
+        newsArticleListView.setEmptyView(emptyStateTextView);
 
         //check for an internet connection
         ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -50,7 +59,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // so the list can be populated in the user interface
         newsArticleListView.setAdapter(mAdapter);
 
-
+        // Obtain a reference to the SharedPreferences file for this app
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // And register to be notified of preference changes
+        // So we know when the user has adjusted the query settings
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         // Set an item click listener on the ListView, which sends an intent to a web browser
         // to open a website with more information about the selected newsarticle.
@@ -74,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         //only try to load content if there is an internet connection
         // otherwise, warn the user there is no connection
         if(isConnected) {
-            getLoaderManager().initLoader(1, null, this);
+            getLoaderManager().initLoader(LOADER_ID, null, this);
         }
         else {
             ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_spinner);
@@ -82,6 +95,24 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             TextView emptyView = (TextView) findViewById(R.id.empty_list);
             emptyView.setText(R.string.no_connection);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (key.equals(getString(R.string.settings_search_term_key))){
+            //clear our ListView as a new query will be started
+            mAdapter.clear();
+
+            //hide our empty state text view because a loading indicator will be displayed
+            emptyStateTextView.setVisibility(View.GONE);
+
+            //show the loading indicator while we fetch new data
+            View loadingIndicator = findViewById(R.id.loading_spinner);
+            loadingIndicator.setVisibility(View.VISIBLE);
+
+            //restart the loader to requery the server since the query settings have been changed
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
         }
     }
 
