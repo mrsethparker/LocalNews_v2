@@ -8,4 +8,14 @@
     <string name="settings_search_term_label">Search Term</string>
     <string name="settings_search_term_key" translatable="false">search_term</string>
     <string name="settings_search_term_default" translatable="false">Nevada</string>
+
+    <string name="settings_order_by_label">Order By</string>
+    <string name="settings_order_by_key" translatable="false">order_by</string>
+    <string name="settings_order_by_default" translatable="false">@string/settings_order_by_relevance_value</string>
+
+    <string name="settings_order_by_relevance_label">Relevance</string>
+    <string name="settings_order_by_relevance_value" translatable="false">relevance</string>
+
+    <string name="settings_order_by_newest_label">Newest</string>
+    <string name="settings_order_by_newest_value" translatable="false">newest</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.android.localnews;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -22,18 +23,35 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings_main);
 
-            //obtain the settings preference so we can change the summary
+            //obtain the search term preference so we can change the summary
             Preference searchTerm = findPreference(getString(R.string.settings_search_term_key));
 
-            //bind the preference summary to a value
+            //bind the search term preference summary to a value
             bindPreferenceSummaryToValue(searchTerm);
+
+            //obtain the order by preference so we can change the summary
+            Preference orderBy = findPreference(getString(R.string.settings_order_by_key));
+
+            //bind the order by preference summary to a value
+            bindPreferenceSummaryToValue(orderBy);
         }
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             //update the displayed preference after it has been changed
             String stringValue = value.toString();
-            preference.setSummary(stringValue);
+
+            //if it's a list preference we need to handle things differently (use label instead of key)
+            if (preference instanceof ListPreference) {
+                ListPreference listPreference = (ListPreference) preference;
+                int prefIndex = listPreference.findIndexOfValue(stringValue);
+                if (prefIndex >= 0) {
+                    CharSequence[] labels = listPreference.getEntries();
+                    preference.setSummary(labels[prefIndex]);
+                }
+            } else {
+                preference.setSummary(stringValue);
+            }
 
             return true;
         }

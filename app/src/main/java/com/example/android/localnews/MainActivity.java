@@ -122,9 +122,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         //get the default preferences
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         String searchTerm = sharedPrefs.getString(
                 getString(R.string.settings_search_term_key),
                 getString(R.string.settings_search_term_default));
+
+        String orderBy  = sharedPrefs.getString(
+                getString(R.string.settings_order_by_key),
+                getString(R.string.settings_order_by_default)
+        );
 
         //parse our base URI string
         Uri baseUri = Uri.parse(REQUEST_URL);
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         uriBuilder.appendQueryParameter("api-key", "3f026c3c-4ea9-47ed-9e64-ae815f555a4f");
         uriBuilder.appendQueryParameter("show-tags", "contributor");
         uriBuilder.appendQueryParameter("page-size", "50");
+        uriBuilder.appendQueryParameter("order-by", orderBy);
 
         return new NewsArticleLoader(MainActivity.this, uriBuilder.toString());
     }
