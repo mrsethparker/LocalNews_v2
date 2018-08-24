@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,10 +87,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         //only try to load content if there is an internet connection
         // otherwise, warn the user there is no connection
-        if(isConnected) {
+        if (isConnected) {
             getLoaderManager().initLoader(LOADER_ID, null, this);
-        }
-        else {
+        } else {
             ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_spinner);
             progressBar.setVisibility(View.GONE);
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if (key.equals(getString(R.string.settings_search_term_key))){
+        if (key.equals(getString(R.string.settings_search_term_key))) {
             //clear our ListView as a new query will be started
             mAdapter.clear();
 
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 getString(R.string.settings_search_term_key),
                 getString(R.string.settings_search_term_default));
 
-        String orderBy  = sharedPrefs.getString(
+        String orderBy = sharedPrefs.getString(
                 getString(R.string.settings_order_by_key),
                 getString(R.string.settings_order_by_default)
         );
@@ -138,9 +138,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         //prepare our baseURI so that we can add parameters
         Uri.Builder uriBuilder = baseUri.buildUpon();
 
+        //grab our API key
+        String apiKey = BuildConfig.THE_GUARDIAN_API_KEY;
+
         //append our query parameters to our baseURI
         uriBuilder.appendQueryParameter("q", searchTerm);
-        uriBuilder.appendQueryParameter("api-key", "3f026c3c-4ea9-47ed-9e64-ae815f555a4f");
+        uriBuilder.appendQueryParameter("api-key", apiKey);
         uriBuilder.appendQueryParameter("show-tags", "contributor");
         uriBuilder.appendQueryParameter("page-size", "50");
         uriBuilder.appendQueryParameter("order-by", orderBy);

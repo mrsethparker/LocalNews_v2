@@ -1,10 +1,13 @@
 package com.example.android.localnews;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,11 +22,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 //utility class providing several helper methods
 public class Utilities {
-    
-    private Utilities(){}
+
+    private static final int readTimeout = 10000;
+    private static final int connectTimeout = 15000;
+    private static final int successResponse = 200;
+
+    private Utilities() {
+    }
 
     //parse a JSON string into a news article list
     private static List<NewsArticle> extractFeatureFromJson(String newsArticleJSON) {
@@ -45,32 +52,38 @@ public class Utilities {
 
             JSONObject resultsJsonObject = baseJsonResponse.getJSONObject("response");
 
-            // Extract the JSONArray associated with the key called "results",
-            // which represents a list of articles
+            //Extract the JSONArray associated with the key called "results",
+            //which represents a list of articles
             JSONArray newsArticleArray = resultsJsonObject.getJSONArray("results");
 
-            // For each article in the article array, create an NewsArticle object
+            //For each article in the article array, create an NewsArticle object
             for (int i = 0; i < newsArticleArray.length(); i++) {
 
-                // Get a single article at position i within the list of articles
+                //Get a single article at position i within the list of articles
                 JSONObject currentNewsArticle = newsArticleArray.getJSONObject(i);
 
-                // Extract the value for the key called "webTitle"
-                String title = currentNewsArticle.getString("webTitle");
+                //Extract the value for the key called "webTitle"
+                String title = currentNewsArticle.optString("webTitle");
 
-                // Extract the value for the key called "sectionName"
-                String section = currentNewsArticle.getString("sectionName");
+                //Extract the value for the key called "sectionName"
+                String section = currentNewsArticle.optString("sectionName");
 
-                // Extract the value for the key called "webUrl"
-                String url = currentNewsArticle.getString("webUrl");
+                //Extract the value for the key called "webUrl"
+                String url = currentNewsArticle.optString("webUrl");
 
                 //Extract the tags array from the current news article and then get
                 //the author name from the key call "webTitle"
-                JSONArray tagsArray = currentNewsArticle.getJSONArray("tags");
-                JSONObject tagsObject = tagsArray.getJSONObject(0);
-                String author = tagsObject.getString("webTitle");
+                String author;
 
-                Date parsedDate = formatDateString(currentNewsArticle.getString("webPublicationDate"));
+                if (currentNewsArticle.has("tags")) {
+                    JSONArray tagsArray = currentNewsArticle.getJSONArray("tags");
+                    JSONObject tagsObject = tagsArray.getJSONObject(0);
+                    author = tagsObject.optString("webTitle");
+                } else {
+                    author = "No Author Provided";
+                }
+
+                Date parsedDate = formatDateString(currentNewsArticle.optString("webPublicationDate"));
 
                 // Create a new {@link NewsArticle} object with the title, author, section,
                 // url, and date from the JSON response.
@@ -116,14 +129,14 @@ public class Utilities {
         InputStream inputStream = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setReadTimeout(readTimeout /* milliseconds */);
+            urlConnection.setConnectTimeout(connectTimeout /* milliseconds */);
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
             // If the request was successful (response code 200),
             // then read the input stream and parse the response.
-            if (urlConnection.getResponseCode() == 200) {
+            if (urlConnection.getResponseCode() == successResponse) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
             } else {
@@ -185,15 +198,14 @@ public class Utilities {
     }
 
     //convert a string date into a Date object
-    private static Date formatDateString(String stringDate){
+    private static Date formatDateString(String stringDate) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
         Date date;
 
-        try{
+        try {
             date = dateFormat.parse(stringDate.replaceAll("Z$", "+0000"));
-        }
-        catch (ParseException e){
+        } catch (ParseException e) {
             date = null;
             Log.e("Utilities: ", "Problem formatting the date.", e);
         }
@@ -206,5 +218,5 @@ public class Utilities {
         SimpleDateFormat dateFormat = new SimpleDateFormat("LLL dd, yyyy");
         return dateFormat.format(dateObject);
     }
-    
+
 }
